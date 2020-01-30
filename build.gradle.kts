@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.1.11.RELEASE"
-	id("io.spring.dependency-management") version "1.0.8.RELEASE"
-	kotlin("jvm") version "1.2.71"
-	kotlin("plugin.spring") version "1.2.71"
+	id("org.springframework.boot") version "2.2.3.RELEASE"
+	id("io.spring.dependency-management") version "1.0.9.RELEASE"
+	kotlin("jvm") version "1.3.61"
+	kotlin("plugin.spring") version "1.3.61"
 }
 
 group = "io.codebrews"
@@ -23,6 +23,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
 }
 
 tasks.withType<KotlinCompile> {
@@ -30,4 +31,8 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "1.8"
 	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }

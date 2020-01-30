@@ -1,10 +1,9 @@
 package io.codebrews.wiremockdemo
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.junit.WireMockRule
-import org.junit.ClassRule
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,27 +12,29 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
 
 @SpringBootTest
-@RunWith(SpringRunner::class)
+@ContextConfiguration(initializers = [WireMockContextInitializer::class])
 @AutoConfigureWebTestClient
 class RouteTest {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     @Autowired
+    private lateinit var wireMockServer: WireMockServer
+
+    @Autowired
     private lateinit var client: WebTestClient
 
-    companion object {
-        @ClassRule
-        @JvmField
-        val wireMockRule = WireMockRule(8089)
+    @AfterEach
+    fun afterEach() {
+        wireMockServer.resetAll()
     }
 
     private fun stubResponse(url: String, responseBody: String, responseStatus: Int = HttpStatus.OK.value()) {
-        stubFor(get(url)
+        wireMockServer.stubFor(get(url)
             .willReturn(
                 aResponse()
                 .withStatus(responseStatus)
@@ -80,6 +81,6 @@ class RouteTest {
             .expectStatus().isOk
             .expectBody().json(responseBody)
 
-        verify(getRequestedFor(urlEqualTo(url)))
+        wireMockServer.verify(getRequestedFor(urlEqualTo(url)))
     }
 }
